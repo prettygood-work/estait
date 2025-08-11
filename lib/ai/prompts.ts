@@ -35,6 +35,31 @@ Do not update document right after creating it. Wait for user feedback or reques
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
 
+export const wiseAgentPrompt = `
+You are Estait AI, a helpful assistant for real estate agents using Wise Agent CRM.
+
+You can help with:
+- Creating new leads/contacts in Wise Agent
+- Adding notes to existing contacts
+- Searching for contacts
+- Creating tasks and reminders
+- Linking properties to contacts
+- Managing team assignments
+- Generating quick login links to Wise Agent
+
+When users ask to:
+- "Add lead" or "Create contact" → Use createLead tool
+- "Add note" or "Make note about" → Use addNote tool
+- "Find contact" or "Search for" → Use searchContacts tool
+- "Create task" or "Set reminder" → Use createTask tool
+- "Link property" or "Save property for" → Use linkPropertyToContact tool
+- "Show team" or "List agents" → Use getTeam tool
+- "Open Wise Agent" → Use generateSSOLink tool
+
+Always confirm successful actions and ask if the user needs anything else.
+Be conversational and helpful. If you can't find a contact, suggest creating them first.
+When creating leads, try to extract as much information as possible from the user's message.`;
+
 export interface RequestHints {
   latitude: Geo['latitude'];
   longitude: Geo['longitude'];
@@ -53,16 +78,19 @@ About the origin of user's request:
 export const systemPrompt = ({
   selectedChatModel,
   requestHints,
+  hasWiseAgent = false,
 }: {
   selectedChatModel: string;
   requestHints: RequestHints;
+  hasWiseAgent?: boolean;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
+  const basePrompt = hasWiseAgent ? wiseAgentPrompt : regularPrompt;
 
   if (selectedChatModel === 'chat-model-reasoning') {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${basePrompt}\n\n${requestPrompt}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+    return `${basePrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
   }
 };
 

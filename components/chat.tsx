@@ -22,6 +22,8 @@ import { useAutoResume } from '@/hooks/use-auto-resume';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
+import { WiseAgentQuickActions } from './chat/wise-agent-quick-actions';
+import { useCRMConnection } from '@/lib/crm/hooks/use-crm-connection';
 
 export function Chat({
   id,
@@ -49,6 +51,7 @@ export function Chat({
   const { setDataStream } = useDataStream();
 
   const [input, setInput] = useState<string>('');
+  const { isConnected: hasWiseAgent } = useCRMConnection('wise_agent');
 
   const {
     messages,
@@ -147,6 +150,27 @@ export function Chat({
           isReadonly={isReadonly}
           isArtifactVisible={isArtifactVisible}
         />
+
+        {hasWiseAgent && !isReadonly && (
+          <div className="mx-auto w-full md:max-w-3xl px-4 pb-2">
+            <WiseAgentQuickActions
+              onAction={(prompt) => {
+                setInput(prompt);
+                // Focus the input field
+                setTimeout(() => {
+                  const textarea = document.querySelector('textarea');
+                  if (textarea) {
+                    textarea.focus();
+                    // Place cursor at the end
+                    const length = prompt.length;
+                    (textarea as HTMLTextAreaElement).setSelectionRange(length, length);
+                  }
+                }, 0);
+              }}
+              isLoading={status === 'in_progress'}
+            />
+          </div>
+        )}
 
         <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
           {!isReadonly && (

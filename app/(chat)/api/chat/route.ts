@@ -23,6 +23,15 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+import {
+  createLead,
+  addNote,
+  searchContacts,
+  createTask,
+  linkPropertyToContact,
+  getTeam,
+  generateSSOLink,
+} from '@/lib/ai/tools/wise-agent-tools';
 import { isProductionEnvironment } from '@/lib/constants';
 import { myProvider } from '@/lib/ai/providers';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
@@ -37,6 +46,7 @@ import { ChatSDKError } from '@/lib/errors';
 import type { ChatMessage } from '@/lib/types';
 import type { ChatModel } from '@/lib/ai/models';
 import type { VisibilityType } from '@/components/visibility-selector';
+import { getCRMAdapter } from '@/lib/crm/factory';
 
 export const maxDuration = 60;
 
@@ -102,6 +112,15 @@ export async function POST(request: Request) {
       return new ChatSDKError('rate_limit:chat').toResponse();
     }
 
+    // Check if Wise Agent is connected
+    let hasWiseAgent = false;
+    try {
+      const wiseAgentAdapter = getCRMAdapter('wise_agent');
+      hasWiseAgent = await wiseAgentAdapter.isConnected(session.user.id);
+    } catch (error) {
+      console.error('Error checking Wise Agent connection:', error);
+    }
+
     const chat = await getChatById({ id });
 
     if (!chat) {
@@ -153,7 +172,7 @@ export async function POST(request: Request) {
       execute: ({ writer: dataStream }) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          system: systemPrompt({ selectedChatModel, requestHints, hasWiseAgent }),
           messages: convertToModelMessages(uiMessages),
           stopWhen: stepCountIs(5),
           experimental_activeTools:
@@ -164,6 +183,15 @@ export async function POST(request: Request) {
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
+                  ...(hasWiseAgent ? [
+                    'createLead',
+                    'addNote',
+                    'searchContacts',
+                    'createTask',
+                    'linkPropertyToContact',
+                    'getTeam',
+                    'generateSSOLink',
+                  ] : []),
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           tools: {
@@ -174,6 +202,15 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
+            ...(hasWiseAgent ? {
+              createLead,
+              addNote,
+              searchContacts,
+              createTask,
+              linkPropertyToContact,
+              getTeam,
+              generateSSOLink,
+            } : {}),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
