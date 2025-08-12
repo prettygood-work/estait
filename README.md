@@ -60,3 +60,39 @@ pnpm dev
 ```
 
 Your app template should now be running on [localhost:3000](http://localhost:3000).
+
+## CRM Integrations
+
+Wise Agent CRM is now integrated (first of multiple upcoming CRMs).
+
+Key features:
+- OAuth 2.0 connection (Settings → Integrations → Wise Agent)
+- Lead/contact creation, notes, tasks, team lookup, SSO link generation via chat tools
+- Automatic token refresh and expiry checks
+
+Quick Start:
+1. Go to /settings/integrations while logged in
+2. Click "Connect" under Wise Agent
+3. Complete OAuth flow
+4. Use chat commands like:
+   - "Create lead Jane Doe 555-1234 jane@example.com"
+   - "Add note to Jane Doe that she wants 3 bed homes"
+   - "Create task to follow up with Jane tomorrow"
+   - "Show my team members"
+   - "Generate Wise Agent login link"
+
+Environment variables required (add to .env.local):
+```
+OPENAI_API_KEY=your-openai-key
+WISE_AGENT_CLIENT_ID=...
+WISE_AGENT_CLIENT_SECRET=...
+ENCRYPTION_KEY=32+char-secret
+```
+
+If Wise Agent not connected, CRM tool calls will be disabled automatically in chat.
+
+If the navigation does not show Settings, manually visit:
+- /settings
+- /settings/integrations
+
+A navigation link can be added by linking to /settings in your sidebar or header component.

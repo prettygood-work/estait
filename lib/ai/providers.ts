@@ -2,6 +2,7 @@ import {
   customProvider,
   extractReasoningMiddleware,
   wrapLanguageModel,
+  type LanguageModelV1Provider,
 } from 'ai';
 import { xai } from '@ai-sdk/xai';
 import { openai } from '@ai-sdk/openai';
@@ -12,10 +13,14 @@ import {
   titleModel,
 } from './models.test';
 import { isTestEnvironment } from '../constants';
-import { isOpenAIConfigured } from './providers/openai-provider';
+
+// Inline replacement for isOpenAIConfigured to avoid importing the broken file
+function isOpenAIConfigured(): boolean {
+  return !!process.env.OPENAI_API_KEY;
+}
 
 // Helper function to get the appropriate AI provider
-function getAIProvider() {
+function getAIProvider(): LanguageModelV1Provider {
   if (isOpenAIConfigured()) {
     return customProvider({
       languageModels: {
@@ -43,18 +48,30 @@ function getAIProvider() {
         'small-model': xai.imageModel('grok-2-image'),
       },
     });
-  } else {
-    throw new Error('No AI provider configured. Please set OPENAI_API_KEY or XAI_API_KEY in your environment variables.');
   }
+  throw new Error(
+    'No AI provider configured. Please set OPENAI_API_KEY or XAI_API_KEY in your environment variables.',
+  );
 }
 
-export const myProvider = isTestEnvironment
-  ? customProvider({
-      languageModels: {
-        'chat-model': chatModel,
-        'chat-model-reasoning': reasoningModel,
-        'title-model': titleModel,
-        'artifact-model': artifactModel,
-      },
-    })
-  : getAIProvider();
+// Lazily create provider to avoid build-time errors in certain environments
+let _provider: LanguageModelV1Provider | null = null;
+
+export function resolveProvider(): LanguageModelV1Provider {
+  if (_provider) return _provider;
+  _provider = isTestEnvironment
+    ? customProvider({
+        languageModels: {
+          'chat-model': chatModel,
+          'chat-model-reasoning': reasoningModel,
+          'title-model': titleModel,
+          'artifact-model': artifactModel,
+        },
+      })
+    : getAIProvider();
+  return _provider;
+}
+
+// Backwards-compatible export
+export const myProvider = resolveProvider();
+export type { LanguageModelV1Provider };

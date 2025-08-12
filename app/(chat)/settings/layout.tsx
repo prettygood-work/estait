@@ -15,9 +15,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
           </Link>
         </nav>
       </aside>
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }

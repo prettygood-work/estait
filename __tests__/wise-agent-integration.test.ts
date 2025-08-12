@@ -7,7 +7,9 @@ import { getCRMAdapter } from '@/lib/crm/factory';
 vi.mock('@/app/(auth)/auth');
 vi.mock('@/lib/crm/factory');
 vi.mock('@/lib/db/queries', () => ({
-  getChatById: vi.fn(() => Promise.resolve({ id: 'test-chat', userId: 'test-user' })),
+  getChatById: vi.fn(() =>
+    Promise.resolve({ id: 'test-chat', userId: 'test-user' }),
+  ),
   getMessagesByChatId: vi.fn(() => Promise.resolve([])),
   saveChat: vi.fn(),
   saveMessages: vi.fn(),
@@ -20,7 +22,7 @@ describe('Wise Agent Chat Integration', () => {
     vi.clearAllMocks();
     // Mock authenticated user
     (auth as any).mockResolvedValue({
-      user: { id: 'test-user', type: 'regular' }
+      user: { id: 'test-user', type: 'regular' },
     });
   });
 
@@ -48,7 +50,7 @@ describe('Wise Agent Chat Integration', () => {
     });
 
     const response = await POST(request);
-    
+
     // Should check Wise Agent connection
     expect(mockAdapter.isConnected).toHaveBeenCalledWith('test-user');
   });
@@ -56,11 +58,11 @@ describe('Wise Agent Chat Integration', () => {
   it('should use OpenAI provider when configured', () => {
     // Set OpenAI API key
     process.env.OPENAI_API_KEY = 'test-key';
-    
+
     // Import provider after setting env var
     vi.resetModules();
     const { myProvider } = require('@/lib/ai/providers');
-    
+
     // Should have OpenAI models configured
     expect(() => myProvider.languageModel('chat-model')).not.toThrow();
   });
@@ -89,7 +91,7 @@ describe('Wise Agent Chat Integration', () => {
     });
 
     const response = await POST(request);
-    
+
     // Should be successful when connected
     expect(response.status).not.toBe(400);
   });
@@ -98,15 +100,15 @@ describe('Wise Agent Chat Integration', () => {
 describe('Wise Agent Connection Status', () => {
   it('should return connection status', async () => {
     const { GET } = require('@/app/api/crm/status/route');
-    
+
     (auth as any).mockResolvedValue({
-      user: { id: 'test-user' }
+      user: { id: 'test-user' },
     });
 
     const mockAdapter = {
       isConnected: vi.fn(() => Promise.resolve(true)),
     };
-    
+
     vi.mocked(getCRMAdapter).mockReturnValue(mockAdapter);
 
     const request = new Request('http://localhost:3000/api/crm/status');

@@ -1,13 +1,8 @@
-// Document tools
-export { createDocument } from './create-document';
-export { updateDocument } from './update-document';
-export { requestSuggestions } from './request-suggestions';
-
-// Utility tools
-export { getWeather } from './get-weather';
-
-// Wise Agent CRM tools
-export {
+import { createDocument } from './create-document';
+import { updateDocument } from './update-document';
+import { requestSuggestions } from './request-suggestions';
+import { getWeather } from './get-weather';
+import {
   createLead,
   addNote,
   searchContacts,
@@ -17,17 +12,24 @@ export {
   generateSSOLink,
 } from './wise-agent-tools';
 
-// Export all tools as a collection for easy access
-export { createDocument as createDocumentTool } from './create-document';
-export { updateDocument as updateDocumentTool } from './update-document';
-export { requestSuggestions as requestSuggestionsTool } from './request-suggestions';
-export { getWeather as getWeatherTool } from './get-weather';
-export {
-  createLead as createLeadTool,
-  addNote as addNoteTool,
-  searchContacts as searchContactsTool,
-  createTask as createTaskTool,
-  linkPropertyToContact as linkPropertyTool,
-  getTeam as getTeamTool,
-  generateSSOLink as generateSSOLinkTool,
-} from './wise-agent-tools';
+export const baseTools = {
+  createDocument,
+  updateDocument,
+  requestSuggestions,
+  getWeather,
+};
+
+export const wiseAgentTools = {
+  createLead,
+  addNote,
+  searchContacts,
+  createTask,
+  linkPropertyToContact,
+  getTeam,
+  generateSSOLink,
+};
+
+export const allTools = {
+  ...baseTools,
+  ...wiseAgentTools,
+};

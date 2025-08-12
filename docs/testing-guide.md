@@ -184,3 +184,17 @@ pnpm test wise-agent-integration
 - [ ] Use HTTPS in production
 - [ ] Rotate API keys regularly
 - [ ] Monitor OAuth token expiry
+
+### Multi-CRM Readiness
+
+The current implementation treats Wise Agent as the first CRM. Future CRMs can follow the same patterns:
+- Adapter pattern (lib/crm/adapters)
+- Connection status exposure via status endpoints
+- Tool registration in lib/ai/tools
+
+### Verify Connection Status (Unified)
+```javascript
+fetch('/api/crm/status').then(r=>r.json()).then(console.log);
+```
+
+If `connected: false` for `wise_agent`, reconnect via Settings → Integrations.
