@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/app/(auth)/auth';
 import { getCRMConnection } from '@/lib/db/queries/crm';
 import { getValidAccessToken } from '@/lib/auth/wiseagent-oauth';
 

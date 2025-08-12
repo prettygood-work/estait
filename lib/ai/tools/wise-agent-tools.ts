@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { tool } from 'ai';
 import { getCRMAdapter } from '@/lib/crm/factory';
 import type { CRMAdapter } from '@/lib/crm/interfaces';
-import { auth } from '@/lib/auth';
+import { auth } from '@/app/(auth)/auth';
 
 // Helper to get current user ID
 async function getCurrentUserId(): Promise<string> {
@@ -58,7 +58,7 @@ export const createLead = tool({
       workPhone: args.workPhone,
       company: args.company,
       address: args.address,
-      source: args.source,
+      source: args.source || 'AI Chat',
       categories: args.categories,
       status: args.status,
       notes: args.notes,
@@ -147,7 +147,7 @@ export const searchContacts = tool({
   inputSchema: z.object({
     searchQuery: z.string().describe('Name, email, or search term'),
     categories: z.array(z.string()).optional().describe('Filter by categories'),
-    limit: z.number().default(10).max(25).describe('Maximum results to return'),
+    limit: z.number().max(25).default(10).describe('Maximum results to return'),
   }),
   execute: async ({ searchQuery, categories, limit }) => {
     const adapter = await getWiseAgentAdapter();

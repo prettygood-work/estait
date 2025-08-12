@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/app/(auth)/auth';
 import { getCRMAdapter } from '@/lib/crm/factory';
 import { z } from 'zod';
 
@@ -28,7 +28,7 @@ const updateContactSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -39,8 +39,9 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const crmType = searchParams.get('crmType') || 'wise_agent';
     
+    const { id } = await params;
     const adapter = getCRMAdapter(crmType as 'wise_agent');
-    const contact = await adapter.getContact(session.user.id, params.id);
+    const contact = await adapter.getContact(session.user.id, id);
     
     if (!contact) {
       return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
@@ -58,7 +59,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -69,10 +70,11 @@ export async function PUT(
     const body = await request.json();
     const validated = updateContactSchema.parse(body);
     
+    const { id } = await params;
     const adapter = getCRMAdapter(validated.crmType);
     const contact = await adapter.updateContact(
       session.user.id,
-      params.id,
+      id,
       validated.contact
     );
     
@@ -95,7 +97,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -106,10 +108,11 @@ export async function DELETE(
     const { searchParams } = new URL(request.url);
     const crmType = searchParams.get('crmType') || 'wise_agent';
     
+    const { id } = await params;
     const adapter = getCRMAdapter(crmType as 'wise_agent');
     
     if (adapter.deleteContact) {
-      await adapter.deleteContact(session.user.id, params.id);
+      await adapter.deleteContact(session.user.id, id);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json(

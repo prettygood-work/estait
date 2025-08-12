@@ -178,21 +178,26 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === 'chat-model-reasoning'
               ? []
+              : hasWiseAgent
+              ? [
+                  'getWeather',
+                  'createDocument',
+                  'updateDocument',
+                  'requestSuggestions',
+                  'createLead',
+                  'addNote',
+                  'searchContacts',
+                  'createTask',
+                  'linkPropertyToContact',
+                  'getTeam',
+                  'generateSSOLink',
+                ] as const
               : [
                   'getWeather',
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
-                  ...(hasWiseAgent ? [
-                    'createLead',
-                    'addNote',
-                    'searchContacts',
-                    'createTask',
-                    'linkPropertyToContact',
-                    'getTeam',
-                    'generateSSOLink',
-                  ] : []),
-                ],
+                ] as const,
           experimental_transform: smoothStream({ chunking: 'word' }),
           tools: {
             getWeather,

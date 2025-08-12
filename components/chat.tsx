@@ -167,7 +167,7 @@ export function Chat({
                   }
                 }, 0);
               }}
-              isLoading={status === 'in_progress'}
+              isLoading={status === 'streaming'}
             />
           </div>
         )}

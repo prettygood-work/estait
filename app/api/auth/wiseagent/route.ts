@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateState, storeState } from '@/lib/auth/oauth-state';
-import { auth } from '@/lib/auth';
+import { auth } from '@/app/(auth)/auth';
 
 const WISE_AGENT_AUTH_URL = 'https://sync.thewiseagent.com/WiseAuth/auth';
 const CLIENT_ID = process.env.WISE_AGENT_CLIENT_ID || '29afa25e-cce6-47ac-8375-2da7c361031a';

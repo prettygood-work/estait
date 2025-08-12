@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateState, clearState } from '@/lib/auth/oauth-state';
 import { storeCRMTokens } from '@/lib/db/queries/crm';
-import { auth } from '@/lib/auth';
+import { auth } from '@/app/(auth)/auth';
 
 const CLIENT_ID = process.env.WISE_AGENT_CLIENT_ID || '29afa25e-cce6-47ac-8375-2da7c361031a';
 const CLIENT_SECRET = process.env.WISE_AGENT_CLIENT_SECRET || 't48/pe1i3uYKlSqwXv70bh91SgGFf9XhE2LKDnimEwI=';
